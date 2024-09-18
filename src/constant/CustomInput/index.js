@@ -23,14 +23,15 @@ const CustomTextInput = ({ placeholder, value, onChangeText, style, showImage })
 
 const styles = StyleSheet.create({
   input: {
-    margin: 12,
+    margin: 10,
     padding: Platform.OS == 'ios' ? 15 : 7,
     borderRadius: 15,
     backgroundColor: '#F0F0F0',
     color: '#333',
     width: '100%',
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    width:'95%'
   }
 });
 

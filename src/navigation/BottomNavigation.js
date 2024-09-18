@@ -34,7 +34,7 @@ const BottomNavigation = () => {
                             iconSource = null;
                     }
 
-                    const tintColor = focused ? 'black' : 'gray';
+                    const tintColor = focused ? '#2A3E97' : 'gray';
 
                     return (
                         <Image

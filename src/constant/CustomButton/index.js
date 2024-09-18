@@ -1,6 +1,8 @@
 import React from "react";
 import { StyleSheet, TouchableOpacity, View, Text, Image } from 'react-native';
 import Imaages from "../Images";
+import { normalizeFont } from "../Dimensions";
+import { fontFamilies } from "../fontsFamilies";
 const CustomButton = ({ buttonName, onButtonClick, isImage }) => {
     return (
         <TouchableOpacity onPress={onButtonClick} style={styes.mainSection}>
@@ -15,7 +17,7 @@ const CustomButton = ({ buttonName, onButtonClick, isImage }) => {
 export default CustomButton;
 const styes = StyleSheet.create({
     mainSection: {
-        backgroundColor: '#262525',
+        backgroundColor: '#2A3E97',
         padding: '5%',
         alignSelf: 'center',
         width: '90%',
@@ -24,8 +26,8 @@ const styes = StyleSheet.create({
     },
     buttonText: {
         color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600'
+        fontSize: normalizeFont(16),
+        fontFamily:fontFamilies.Mulish.semiBold
     },
     imageStyle: {
         alignSelf: 'center',

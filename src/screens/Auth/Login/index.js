@@ -28,7 +28,7 @@ const Login = () => {
                     <Image source={Imaages.loginBg} style={{ height: '100%', width: '100%' }} />
                     <View style={styles.innerContainer}>
                         <View style={styles.typingSection}>
-                            <Text style={styles.loginText}>Deixe Esqueci sua senha!</Text>
+                            <Text style={styles.loginText}>Bem-vindo de volta!</Text>
                             <View>
                                 <Text style={styles.levelText}>Usuário</Text>
                                 <CustomTextInput placeholder="Informe Seu ID de usuário" />
@@ -38,8 +38,8 @@ const Login = () => {
                                 <CustomTextInput placeholder="******" showImage={true} />
                             </View>
                         </View>
-                        <View style={{marginTop:20}}>
-                        <CustomButton buttonName="Login" onButtonClick={onButtonClick} />
+                        <View style={{ marginTop: 20 }}>
+                            <CustomButton buttonName="Login" onButtonClick={onButtonClick} />
                         </View>
                     </View>
                 </ScrollView>
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     backgroundImage: {
-      
+
     },
     scrollContainer: {
 
@@ -79,9 +79,9 @@ const styles = StyleSheet.create({
         marginTop: 20,
         fontSize: normalizeFont(20),
         fontFamily: fontFamilies.Mulish.regular,
-        // fontWeight: 'bold',
         marginBottom: 20,
-        color: '#262525'
+        color: '#262525',
+        marginLeft: scaleWidth(10)
     },
     forgotPassword: {
         alignSelf: "flex-end",

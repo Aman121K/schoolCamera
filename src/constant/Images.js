@@ -22,7 +22,9 @@ const Imaages = {
     openEye:require('../assets/img/eyeOpen/eyeOpen.png'),
     edit:require('../assets/img/edit/edit.png'),
     leftIcons:require('../assets/img/leftArrow/leftArrow.png'),
-    deleteIcons:require('../assets/img/delete/delete.png')
+    deleteIcons:require('../assets/img/delete/delete.png'),
+    dropIcon:require('../assets/img/dropIcon/dropIcon.png'),
+    threeDots:require('../assets/img/threeDots/threeDots.png')
 
 }
 export default Imaages

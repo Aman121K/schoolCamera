@@ -1,68 +1,67 @@
 import React from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import SubHeadeer from '../../../component/subHeader';
+import Imaages from '../../../constant/Images';
+import CustomTextInput from '../../../constant/CustomInput';
+import CustomButton from '../../../constant/CustomButton';
+import { scaleHeight, scaleWidth } from '../../../constant/Dimensions';
+import { normalize } from '@rneui/themed';
+import { fontFamilies } from '../../../constant/fontsFamilies';
 
 const CreateUsers = () => {
+  const onCreateButtonClick = () => {
+
+  }
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.section}>
-        <TouchableOpacity style={styles.actionRow}>
-          <Text style={styles.actionText}>View Details</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.detailSection}>
-        <DetailRow title="Status" value="Active" valueStyle={styles.activeStatus} />
-        <DetailRow title="User ID" value="123623" />
-        <DetailRow title="Parent" value="ABCDE" />
-        <DetailRow title="Password" value="*******" />
+      <SubHeadeer name="Add User" image={Imaages.threeDots} />
+      <View style={{ marginTop: scaleHeight(10) }}>
+        <View style={styles.inputSection}>
+          <Text style={styles.levelText}>LogIn ID</Text>
+          <CustomTextInput placeholder="1232" />
+        </View>
+        <View style={styles.inputSection}>
+          <Text style={styles.levelText}>Role</Text>
+          <CustomTextInput placeholder="Admin" />
+        </View>
+        <View style={styles.inputSection}>
+          <Text style={styles.levelText}>Name</Text>
+          <CustomTextInput placeholder="Albert Flores" />
+        </View>
+        {/* Create Password */}
+        <View style={styles.inputSection}>
+          <Text style={styles.levelText}>Create Password</Text>
+          <CustomTextInput placeholder="Confirm Password " />
+        </View>
+        {/* Confirm Password */}
+        <View style={styles.inputSection}>
+          <Text style={styles.levelText}>Confirm Password </Text>
+          <CustomTextInput placeholder="Confirm Password " />
+        </View>
+        <View>
+          <CustomButton buttonName="create" onButtonClick={onCreateButtonClick} />
+        </View>
       </View>
     </ScrollView>
   );
 };
 
-const DetailRow = ({ title, value, valueStyle }) => (
-  <View style={styles.row}>
-    <Text style={styles.label}>{title}</Text>
-    <Text style={[styles.value, valueStyle]}>{value}</Text>
-  </View>
-);
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9f9f9',
   },
-  section: {
-    paddingVertical: 20,
-    paddingHorizontal: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+  inputSection: {
+    marginHorizontal: scaleWidth(10)
   },
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  actionText: {
-    fontSize: 16,
-  },
-  detailSection: {
-    padding: 20,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  label: {
-    fontSize: 16,
-  },
-  value: {
-    fontSize: 16,
-  },
-  activeStatus: {
-    color: 'green',
-  },
+  levelText: {
+    fontSize: normalize(13),
+    fontFamily: fontFamilies.Mulish.semiBold,
+    color: '#667080'
+  }
+
 });
 
 export default CreateUsers;

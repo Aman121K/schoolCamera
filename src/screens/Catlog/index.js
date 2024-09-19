@@ -78,13 +78,13 @@ const Catlog = () => {
                     style={[styles.tab, selectedTab === 'Usuários' ? styles.activeTab : styles.inactiveTab]}
                     onPress={() => setSelectedTab('Usuários')}
                 >
-                    <Text style={styles.titleName}>Usuários</Text>
+                    <Text style={[selectedTab === 'Usuários' ? styles.activeText : styles.inactiveText]}>Usuários</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.tab, selectedTab === 'Escolas' ? styles.activeTab : styles.inactiveTab]}
                     onPress={() => setSelectedTab('Escolas')}
                 >
-                    <Text style={styles.titleName}>Escolas</Text>
+                    <Text style={[selectedTab === 'Usuários' ? styles.activeText : styles.inactiveText]}>Escolas</Text>
                 </TouchableOpacity>
             </View>
             {selectedTab === 'Usuários' ?
@@ -174,6 +174,12 @@ const styles = StyleSheet.create({
     cellname: {
         fontSize: normalizeFont(12),
         fontFamily: fontFamilies.Mulish.regular,
+        color: '#232323'
+    },
+    activeText: {
+        color: 'white'
+    },
+    inactiveTab: {
         color: '#232323'
     }
 });

@@ -1,15 +1,18 @@
 import React from "react";
-import { StyleSheet, TouchableOpacity, View, Text, Image } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Text, Image, ActivityIndicator } from 'react-native';
 import Imaages from "../Images";
 import { normalizeFont } from "../Dimensions";
 import { fontFamilies } from "../fontsFamilies";
-const CustomButton = ({ buttonName, onButtonClick, isImage }) => {
+const CustomButton = ({ buttonName, onButtonClick, isImage, loading }) => {
     return (
         <TouchableOpacity onPress={onButtonClick} style={styes.mainSection}>
-            <View style={{ flexDirection: 'row' }}>
-                <Text style={styes.buttonText}>{buttonName}</Text>
-                {isImage && <Image style={styes.imageStyle} source={Imaages.leftIcon} />}
-            </View>
+            {loading ? <ActivityIndicator color="white" /> :
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={styes.buttonText}>{buttonName}</Text>
+                    {isImage && <Image style={styes.imageStyle} source={Imaages.leftIcon} />}
+
+                </View>
+            }
 
         </TouchableOpacity>
     )
@@ -27,7 +30,7 @@ const styes = StyleSheet.create({
     buttonText: {
         color: '#FFFFFF',
         fontSize: normalizeFont(16),
-        fontFamily:fontFamilies.Mulish.semiBold
+        fontFamily: fontFamilies.Mulish.semiBold
     },
     imageStyle: {
         alignSelf: 'center',

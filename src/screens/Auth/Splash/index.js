@@ -1,13 +1,24 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { SafeAreaView, StyleSheet, View, Text, ScrollView, ImageBackground, StatusBar } from 'react-native';
 import Imaages from "../../../constant/Images";
 import CustomButton from "../../../constant/CustomButton";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { fontFamilies } from "../../../constant/fontsFamilies";
 import { normalizeFont, scaleHeight, scaleWidth } from "../../../constant/Dimensions";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Splash = () => {
     const navigation = useNavigation();
+    useLayoutEffect(() => {
+        checkIslogin()
+    }, [])
+    const checkIslogin = async () => {
+        const isLogin = await AsyncStorage.getItem('token')
+        if (isLogin) {
+            navigation.navigate('DashBoard')
+        } 
+
+    }
 
     const onButtonClick = () => {
         navigation.navigate('Login');

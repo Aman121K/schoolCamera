@@ -3,4 +3,4 @@ const API_URL={
     login:`${BASEURL}auth/login`,
     
 }
-// export  API_URL;
+export default  API_URL;

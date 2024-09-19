@@ -3,7 +3,7 @@ import React from 'react';
 import { TextInput, StyleSheet, Image, View, TouchableOpacity, Platform } from 'react-native';
 import Imaages from '../Images';
 
-const CustomTextInput = ({ placeholder, value, onChangeText, style, showImage }) => {
+const CustomTextInput = ({ placeholder, value, onChangeText, style, showImage, secureTextEntry }) => {
   return (
     <View style={styles.input}>
       <TextInput
@@ -11,10 +11,11 @@ const CustomTextInput = ({ placeholder, value, onChangeText, style, showImage })
         placeholderTextColor="#888"
         value={value}
         onChangeText={onChangeText}
+        secureTextEntry={secureTextEntry}
       />
       {showImage &&
         <TouchableOpacity>
-          <Image style={{ alignSelf: 'flex-end',top:20 }} source={Imaages.password} />
+          <Image style={{ alignSelf: 'flex-end', top: 20 }} source={Imaages.password} />
         </TouchableOpacity>
       }
     </View>
@@ -31,7 +32,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width:'95%'
+    width: '95%'
   }
 });
 

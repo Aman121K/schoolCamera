@@ -1,73 +1,99 @@
-import React, { useRef, useState } from 'react';
-import { FlatList, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View, Modal, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { FlatList, Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View, Modal, Pressable, Alert, BackHandler } from 'react-native';
 import Video from 'react-native-video'; // Import from react-native-video
 import Imaages from "../../../constant/Images";
 import HomeHeader from '../../../component/HomeHeader';
 import { normalizeFont, scaleHeight, scaleWidth } from '../../../constant/Dimensions';
 import { fontFamilies } from '../../../constant/fontsFamilies';
 import { BottomSheet } from '@rneui/themed';
-
+import { useRoute } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const Home = () => {
+    // const route = useRoute();
+    // const { token } = route.params || {}; // Destructure token from route params
+    // console.log("Received token:", token);
     const [selectedVideo, setSelectedVideo] = useState(null); // State for the selected video URL
     const [modalVisible, setModalVisible] = useState(false); // State to control modal visibility
     const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
-    const bottomSheetRef = useRef(null);
+    const [data, setData] = useState([]);
     const openModal = (videoUrl) => {
         setSelectedVideo(videoUrl);
         setModalVisible(true);
     };
-
     const closeModal = () => {
         setModalVisible(false);
         setSelectedVideo(null);
     };
+    useEffect(() => {
+        const backAction = () => {
+            Alert.alert("Exit App", "Are you sure you want to exit?", [
+                {
+                    text: "Cancel",
+                    onPress: () => null,
+                    style: "cancel"
+                },
+                {
+                    text: "Yes",
+                    onPress: () => BackHandler.exitApp()
+                }
+            ]);
+            return true; // Prevent default back button behavior
+        };
 
-    const data = [
-        {
-            title: "Escola Horizonte do Saber",
-            cameraList: [
-                { id: 1, name: 'Escola Valley-Cam 1', thumbnail: 'https://via.placeholder.com/150', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-                { id: 2, name: 'Escola Valley-Cam 2', thumbnail: 'https://via.placeholder.com/150', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-                { id: 3, name: 'Escola Valley-Cam 1', thumbnail: 'https://via.placeholder.com/150', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-                { id: 4, name: 'Escola Valley-Cam 2', thumbnail: 'https://via.placeholder.com/150', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-            ]
-        },
-        {
-            title: "Escola Horizonte do Saber",
-            cameraList: [
-                { id: 1, name: 'Escola Valley-Cam 1', thumbnail: 'https://via.placeholder.com/150', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-                { id: 2, name: 'Escola Valley-Cam 2', thumbnail: 'https://via.placeholder.com/150', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-                { id: 3, name: 'Escola Valley-Cam 1', thumbnail: 'https://via.placeholder.com/150', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-                { id: 4, name: 'Escola Valley-Cam 2', thumbnail: 'https://via.placeholder.com/150', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-            ]
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+        );
+
+        return () => backHandler.remove(); // Cleanup on component unmount
+    }, []);
+    useEffect(async () => {
+        const token = await AsyncStorage.getItem('token');
+        if (token) {
+            const fetchUserData = async () => {
+                try {
+                    const response = await axios.get(
+                        'https://goes-camera-monitoring-service-webapp-byfhf7enekh7cnbn.eastus-01.azurewebsites.net/users/me',
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        }
+                    );
+                    setData(response.data)
+                } catch (error) {
+                    console.error("Error fetching user data:", error);
+                }
+            };
+            fetchUserData();
         }
-    ];
-
+    }, []);
     const renderItems = ({ item }) => (
-        <TouchableOpacity style={styles.renderSection} onPress={() => openModal(item.videoUrl)}>
+        <TouchableOpacity style={styles.renderSection} onPress={() => openModal(item.rtmpUrl)}>
             <Image source={Imaages.classes} style={styles.imageStyle} />
-
         </TouchableOpacity>
     );
 
     return (
         <SafeAreaView style={styles.mainSection}>
-            <HomeHeader />
+            <HomeHeader data={data} />
             <Text style={styles.textType}>Lista de Cameras</Text>
-            {data.map((item, index) => {
+            {data?.schools?.length > 0 && data?.schools?.map((item, index) => {
                 return (
                     <View style={styles.cameraSection}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 10 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Image source={Imaages.schoolIcon} />
-                                <Text style={styles.title}>{item.title}</Text>
+                                <Text style={styles.title}>{item?.name}</Text>
                             </View>
-                            <TouchableOpacity onPress={() => setIsBottomSheetVisible(true)}>
-                                <Image source={Imaages.setting} />
-                            </TouchableOpacity>
+                            {data?.role == 'ADMIN' &&
+                                <TouchableOpacity onPress={() => setIsBottomSheetVisible(true)}>
+                                    <Image source={Imaages.setting} />
+                                </TouchableOpacity>}
                         </View>
                         <FlatList
-                            data={item.cameraList}
+                            data={item.classrooms}
                             numColumns={2}
                             renderItem={renderItems}
                             keyExtractor={(item) => item.id.toString()}
@@ -90,11 +116,11 @@ const Home = () => {
                         </View>
                         <Text style={styles.seunText}>Manage users, schools, and cameras by adding, updating, and configuring them to ensure smooth system functionality.</Text>
                         <View>
-                            <TouchableOpacity onPress={()=>setIsBottomSheetVisible(false)} style={styles.buttonSection}>
+                            <TouchableOpacity onPress={() => setIsBottomSheetVisible(false)} style={styles.buttonSection}>
                                 <Text style={styles.buttonText}>Manage Cameras</Text>
                                 <Image source={Imaages.rightArrow} />
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={()=>setIsBottomSheetVisible(false)} style={styles.buttonSection}>
+                            <TouchableOpacity onPress={() => setIsBottomSheetVisible(false)} style={styles.buttonSection}>
                                 <Text style={styles.buttonText}>Manage Users Access to Cameras</Text>
                                 <Image source={Imaages.rightArrow} />
                             </TouchableOpacity>
@@ -184,19 +210,19 @@ const styles = StyleSheet.create({
         marginHorizontal: scaleWidth(20),
         marginVertical: scaleHeight(10)
     },
-    buttonSection:{
-        flexDirection:'row',
-        marginHorizontal:scaleWidth(30),
-        borderWidth:1,
-        padding:scaleHeight(10),
-        borderRadius:scaleWidth(15),
-        justifyContent:'space-between',
-        marginVertical:scaleHeight(10)
+    buttonSection: {
+        flexDirection: 'row',
+        marginHorizontal: scaleWidth(30),
+        borderWidth: 1,
+        padding: scaleHeight(10),
+        borderRadius: scaleWidth(15),
+        justifyContent: 'space-between',
+        marginVertical: scaleHeight(10)
     },
-    buttonText:{
-        color:'#242736',
-        fontSize:normalizeFont(13),
-        fontFamily:fontFamilies.Mulish.semiBold
+    buttonText: {
+        color: '#242736',
+        fontSize: normalizeFont(13),
+        fontFamily: fontFamilies.Mulish.semiBold
     }
 });
 

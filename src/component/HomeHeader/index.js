@@ -4,7 +4,23 @@ import Imaages from "../../constant/Images";
 import Search from "../../constant/CustomSearch";
 import { normalizeFont, scaleHeight, scaleWidth } from "../../constant/Dimensions";
 import { fontFamilies } from "../../constant/fontsFamilies";
-const HomeHeader = ({ showRecords }) => {
+
+const HomeHeader = ({ showRecords,data}) => {
+    // Function to get greeting based on time
+    console.log("data on home page>",data)
+    const getGreeting = () => {
+        const currentHour = new Date().getHours();
+        if (currentHour < 12) {
+            return "Good Morning";
+        } else if (currentHour >= 12 && currentHour < 18) {
+            return "Good Afternoon";
+        } else if (currentHour >= 18 && currentHour < 22) {
+            return "Good Evening";
+        } else {
+            return "Good Night";
+        }
+    };
+
     return (
         <View style={style.mainSection}>
             <View style={style.subMainSection}>
@@ -18,8 +34,8 @@ const HomeHeader = ({ showRecords }) => {
                 </View>
             </View>
             <View style={style.nameSection}>
-                <Text style={style.nameText}>Good Afternoon</Text>
-                <Text style={style.subNameText}>Welcome Alejandro</Text>
+                <Text style={style.nameText}>{getGreeting()}</Text>
+                <Text style={style.subNameText}>Welcome {data?.name}</Text>
             </View>
             {showRecords &&
                 <View style={style.socialSection}>
@@ -41,7 +57,9 @@ const HomeHeader = ({ showRecords }) => {
         </View>
     )
 }
+
 export default HomeHeader;
+
 const style = StyleSheet.create({
     mainSection: {
         backgroundColor: '#2A3E97',
@@ -59,7 +77,6 @@ const style = StyleSheet.create({
         fontSize: normalizeFont(13),
         color: 'white',
         fontFamily: fontFamilies.Mulish.regular,
-
     },
     subNameText: {
         fontSize: normalizeFont(16),
@@ -70,21 +87,20 @@ const style = StyleSheet.create({
     nameSection: {
         marginLeft: scaleWidth(30)
     },
-    socialSection:{
-        flexDirection:'row',
-        justifyContent:'space-between',
-        marginHorizontal:scaleWidth(30),
-        marginVertical:scaleHeight(10)
+    socialSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginHorizontal: scaleWidth(30),
+        marginVertical: scaleHeight(10)
     },
-    names:{
-        fontFamily:fontFamilies.Mulish.regular,
-        fontSize:normalizeFont(13),
-        color:'white'
+    names: {
+        fontFamily: fontFamilies.Mulish.regular,
+        fontSize: normalizeFont(13),
+        color: 'white'
     },
-    records:{
-        fontSize:normalizeFont(16),
-        color:'white',
-        fontFamily:fontFamilies.Mulish.semiBold
+    records: {
+        fontSize: normalizeFont(16),
+        color: 'white',
+        fontFamily: fontFamilies.Mulish.semiBold
     }
-
-})
+});

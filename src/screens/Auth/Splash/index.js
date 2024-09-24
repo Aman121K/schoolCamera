@@ -31,7 +31,7 @@ const Splash = () => {
                 <SafeAreaView style={styles.mainSection}>
                     <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
                         <View style={styles.textSection}>
-                            <Text style={styles.headText}>Sistema XYZ de Monitoramento de Escolas</Text>
+                            <Text style={styles.headText}>Sistema GOES de Monitoramento de Escolas</Text>
                             <Text style={styles.subText}>
                                 Experimente a mais alta qualidade de vegetais e frutas frescas da fazenda, selecionadas especialmente para você
                             </Text>

@@ -10,9 +10,6 @@ import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const Home = () => {
-    // const route = useRoute();
-    // const { token } = route.params || {}; // Destructure token from route params
-    // console.log("Received token:", token);
     const [selectedVideo, setSelectedVideo] = useState(null); // State for the selected video URL
     const [modalVisible, setModalVisible] = useState(false); // State to control modal visibility
     const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
@@ -62,6 +59,7 @@ const Home = () => {
                         }
                     );
                     setData(response.data)
+                    await AsyncStorage.setItem('loginData',JSON.stringify(response.data))
                 } catch (error) {
                     console.error("Error fetching user data:", error);
                 }
@@ -70,8 +68,12 @@ const Home = () => {
         }
     }, []);
     const renderItems = ({ item }) => (
+
         <TouchableOpacity style={styles.renderSection} onPress={() => openModal(item.rtmpUrl)}>
-            <Image source={Imaages.classes} style={styles.imageStyle} />
+            <Image source={Imaages.CameraImages} style={styles.imageStyle} />
+            <View style={{position:'absolute',margin:10,left:0,}}>
+                <Text style={{color:'white'}}>{item?.name}</Text>
+            </View>
         </TouchableOpacity>
     );
 

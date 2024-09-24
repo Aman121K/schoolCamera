@@ -24,7 +24,8 @@ const Imaages = {
     leftIcons:require('../assets/img/leftArrow/leftArrow.png'),
     deleteIcons:require('../assets/img/delete/delete.png'),
     dropIcon:require('../assets/img/dropIcon/dropIcon.png'),
-    threeDots:require('../assets/img/threeDots/threeDots.png')
+    threeDots:require('../assets/img/threeDots/threeDots.png'),
+    CameraImages:require('../assets/img/cameras/cameras.png')
 
 }
 export default Imaages

@@ -5,9 +5,9 @@ import Search from "../../constant/CustomSearch";
 import { normalizeFont, scaleHeight, scaleWidth } from "../../constant/Dimensions";
 import { fontFamilies } from "../../constant/fontsFamilies";
 
-const HomeHeader = ({ showRecords,data}) => {
+const HomeHeader = ({ showRecords,data,usersList,schoolList,onChange}) => {
     // Function to get greeting based on time
-    console.log("data on home page>",data)
+    console.log("data on home page>",data,usersList)
     const getGreeting = () => {
         const currentHour = new Date().getHours();
         if (currentHour < 12) {
@@ -41,19 +41,19 @@ const HomeHeader = ({ showRecords,data}) => {
                 <View style={style.socialSection}>
                     <View>
                         <Text style={style.names}>Usuários</Text>
-                        <Text style={style.records}>300k</Text>
+                        <Text style={style.records}>{usersList.totalUsers}</Text>
                     </View>
                     <View>
                         <Text style={style.names}>Escolas</Text>
-                        <Text style={style.records}>1000</Text>
+                        <Text style={style.records}>{usersList.totalSchools}</Text>
                     </View>
                     <View>
                         <Text style={style.names}>Câmeras</Text>
-                        <Text style={style.records}>500k</Text>
+                        <Text style={style.records}>{usersList.totalSchools}</Text>
                     </View>
                 </View>
             }
-            <Search />
+            <Search  onChange={onChange}/>
         </View>
     )
 }

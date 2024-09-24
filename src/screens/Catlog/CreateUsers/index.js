@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import axios from 'axios';
 import SubHeadeer from '../../../component/subHeader';
 import Imaages from '../../../constant/Images';
@@ -8,9 +8,10 @@ import CustomButton from '../../../constant/CustomButton';
 import { scaleHeight, scaleWidth } from '../../../constant/Dimensions';
 import { normalize } from '@rneui/themed';
 import { fontFamilies } from '../../../constant/fontsFamilies';
+import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CreateUsers = () => {
-  // State to manage form fields
   const [formData, setFormData] = useState({
     login: '',
     role: '',
@@ -18,9 +19,11 @@ const CreateUsers = () => {
     password: '',
     confirmPassword: ''
   });
+  const [buttonLoading, setButtonLoading] = useState(false);
 
-  // Validation errors
   const [errors, setErrors] = useState({});
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false); // Dropdown visibility state
+  const roles = ['Admin', 'Parent']; // Roles array
 
   // Handle input changes
   const handleInputChange = (name, value) => {
@@ -45,36 +48,56 @@ const CreateUsers = () => {
   // Handle API call on button click
   const onCreateButtonClick = async () => {
     if (validateInputs()) {
-      const body={
-          name: formData.name,
-          login: formData.login,
-          role: formData.role.toUpperCase(),
-          password: formData.password,
-        
+      setButtonLoading(true)
+      let token = await AsyncStorage.getItem('token')
+      const body = {
+        name: formData.name,
+        login: formData.login,
+        role: formData.role.toUpperCase(),
+        password: formData.password,
+
       }
-      console.log("body>>",body)
+      console.log("body>>", body)
       try {
         const response = await axios.post('https://goes-camera-monitoring-service-webapp-byfhf7enekh7cnbn.eastus-01.azurewebsites.net/users',
           body, {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQURNSU4iLCJsb2dpbiI6eyJwcm9wcyI6eyJ2YWx1ZSI6ImFkbWluIn19LCJzdWIiOiI2ZTU0MTBhMy0zYzBkLTRkMTEtOWE4ZS0zMTc1MTIwNTgxNzMiLCJpYXQiOjE3MjY3NjQwMDAsImV4cCI6MTcyNjg1MDQwMH0.23srXAecS5mEyqNRwOBV_A8OXW--FyYDWh-ah1cPxkM`
+            'Authorization': `Bearer ${token}`
           },
         });
-  
-        Alert.alert("Success", "User created successfully!");
+        Toast.show({
+          type: 'success',
+          text1: 'Register successful!',
+          position: 'top',
+          visibilityTime: 3000
+        });
+        setButtonLoading(false)
         setFormData({ login: '', role: '', name: '', password: '', confirmPassword: '' }); // Reset form
       } catch (error) {
         console.log("Error Details:", error.response ? error.response.data : error.message);
-        Alert.alert("Error", "Failed to create user. Please try again.");
+        setButtonLoading(false)
+        Toast.show({
+          type: 'error',
+          text1: 'Register Failed!',
+          position: 'top',
+          visibilityTime: 3000
+        });
       }
     }
+  };
+
+  // Handle role selection
+  const handleRoleSelect = (role) => {
+    setFormData({ ...formData, role });
+    setShowRoleDropdown(false);
   };
 
   return (
     <ScrollView style={styles.container}>
       <SubHeadeer name="Add User" image={Imaages.threeDots} />
       <View style={{ marginTop: scaleHeight(10) }}>
+        {/* LogIn ID */}
         <View style={styles.inputSection}>
           <Text style={styles.levelText}>LogIn ID</Text>
           <CustomTextInput
@@ -85,16 +108,32 @@ const CreateUsers = () => {
           {errors.login && <Text style={styles.errorText}>{errors.login}</Text>}
         </View>
 
+        {/* Role Selection */}
         <View style={styles.inputSection}>
           <Text style={styles.levelText}>Role</Text>
-          <CustomTextInput
-            placeholder="Enter Role"
-            value={formData.role}
-            onChangeText={(value) => handleInputChange('role', value)}
-          />
+          <TouchableOpacity onPress={() => setShowRoleDropdown(!showRoleDropdown)}>
+            <CustomTextInput
+              placeholder="Select Role"
+              value={formData.role}
+              editable={false}
+            />
+          </TouchableOpacity>
+          {showRoleDropdown && (
+            <FlatList
+              data={roles}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => handleRoleSelect(item)}>
+                  <Text style={styles.dropdownItem}>{item}</Text>
+                </TouchableOpacity>
+              )}
+              style={styles.dropdownList}
+            />
+          )}
           {errors.role && <Text style={styles.errorText}>{errors.role}</Text>}
         </View>
 
+        {/* Name */}
         <View style={styles.inputSection}>
           <Text style={styles.levelText}>Name</Text>
           <CustomTextInput
@@ -129,8 +168,9 @@ const CreateUsers = () => {
           {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
         </View>
 
+        {/* Create Button */}
         <View>
-          <CustomButton buttonName="Create" onButtonClick={onCreateButtonClick} />
+          <CustomButton loading={buttonLoading} buttonName="Create" onButtonClick={onCreateButtonClick} />
         </View>
       </View>
     </ScrollView>
@@ -155,6 +195,18 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: normalize(12),
     marginTop: scaleHeight(2),
+  },
+  dropdownList: {
+    backgroundColor: '#fff',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginTop: scaleHeight(5),
+  },
+  dropdownItem: {
+    padding: scaleHeight(10),
+    fontSize: normalize(14),
+    fontFamily: fontFamilies.Mulish.regular,
   },
 });
 

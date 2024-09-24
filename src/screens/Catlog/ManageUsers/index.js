@@ -4,12 +4,16 @@ import SubHeadeer from '../../../component/subHeader';
 import Imaages from '../../../constant/Images';
 import { normalizeFont, scaleHeight, scaleWidth } from '../../../constant/Dimensions';
 import { fontFamilies } from '../../../constant/fontsFamilies';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 const ManageUsers = () => {
+  const route = useRoute();
+  console.log("data", route)
+  const { data } = route.params || {}; // Destructure token from route params
+  console.log("Received data:", data);
   const navigation = useNavigation()
   const onEditIconClick = () => {
-    navigation.navigate('editUser')
+    navigation.navigate('editUser', { data: data })
   }
   return (
     <SafeAreaView style={styles.container}>
@@ -23,9 +27,9 @@ const ManageUsers = () => {
         </View>
 
         <View style={styles.detailSection}>
-          <DetailRow title="Status" value="Active" valueStyle={styles.activeStatus} />
-          <DetailRow title="User ID" value="123623" />
-          <DetailRow title="Parent" value="ABCDE" />
+          <DetailRow title="Status" value={data?.enabled ? 'Active' : 'InActive'} valueStyle={styles.activeStatus} />
+          <DetailRow title="User ID" value={data.role} />
+          <DetailRow title="Parent" value={data.name} />
 
         </View>
         <View style={styles.passwordSection}>
@@ -86,6 +90,7 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: 16,
+    color: '#000000'
   },
   activeStatus: {
     color: 'green',

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image } from 'react-native';
 import Home from '../screens/home/HomeDesign';
@@ -6,10 +6,24 @@ import Catalog from '../screens/Catlog';
 import Notification from '../screens/notification/Notification';
 import Users from '../screens/users/Users';
 import Imaages from '../constant/Images';
+import { useRoute } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createBottomTabNavigator();
 
 const BottomNavigation = () => {
+    const [roles, setRoles] = useState();
+    useEffect(() => {
+        getRole()
+    }, [])
+    const getRole = async () => {
+        let role = await AsyncStorage.getItem('role');
+        setRoles(role)
+    }
+    // const route = useRoute();  // Get the navigation route
+    // console.log("all routes>>",route?.params?.params?.role)
+    // const role=route?.params?.params?.role;
+
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -21,7 +35,7 @@ const BottomNavigation = () => {
                         case 'Homes':
                             iconSource = Imaages.Home;
                             break;
-                        case 'Catalog':
+                        case 'Dashboard':
                             iconSource = Imaages.Catalog;
                             break;
                         case 'Notification':
@@ -53,7 +67,11 @@ const BottomNavigation = () => {
             })}
         >
             <Tab.Screen name="Homes" component={Home} options={{ headerShown: false }} />
-            <Tab.Screen name="Catalog" component={Catalog} options={{ headerShown: false }} />
+
+            {roles == 'ADMIN' && (
+                <Tab.Screen name="Dashboard" component={Catalog} options={{ headerShown: false }} />
+            )}
+
             <Tab.Screen name="Notification" component={Notification} options={{ headerShown: false }} />
             <Tab.Screen name="Users" component={Users} options={{ headerShown: false }} />
         </Tab.Navigator>

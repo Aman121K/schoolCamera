@@ -8,7 +8,7 @@ const CustomTextInput = ({ placeholder, value, onChangeText, style, showImage, s
     <View style={styles.input}>
       <TextInput
         placeholder={placeholder}
-        placeholderTextColor="#888"
+        placeholderTextColor="#667080"
         value={value}
         onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}

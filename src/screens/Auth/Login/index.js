@@ -8,17 +8,15 @@ import { normalizeFont, scaleHeight, scaleWidth } from "../../../constant/Dimens
 import { fontFamilies } from "../../../constant/fontsFamilies";
 import Toast from 'react-native-toast-message'
 import API_URL from "../../../constant/Apis/urls";
+// import jwt_decode from 'jsonwebtoken';
+import { jwtDecode } from "jwt-decode";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 const Login = () => {
     const navigation = useNavigation();
-
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading,setLoading]=useState(false)
-
+    const [loading, setLoading] = useState(false)
     const onButtonClick = async () => {
-        // Form validation
         if (!email || !password) {
             Toast.show({
                 type: 'error',
@@ -28,38 +26,59 @@ const Login = () => {
             });
             return;
         }
-    
         try {
-            setLoading(true)
+            setLoading(true);
             const response = await fetch(API_URL.login, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',  // Set content type as JSON
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    login: email,    // Correcting the login field name
+                    login: email,
                     password: password
                 })
             });
-    
-            const data = await response.json();  // Parse the response data
-            console.log("API response is >>", data);
-            setLoading(false)
-            // Handle success response
-            if (response.ok) {  // Check if response is OK (status 200-299)
+
+            const responseText = await response.text(); // Get the response as text first
+            console.log("Raw API response: ", responseText);
+
+            let data;
+            try {
+                data = JSON.parse(responseText); // Try to parse the text as JSON
+            } catch (error) {
+                console.error("JSON Parse error: ", error);
+                Toast.show({
+                    type: 'error',
+                    text1: 'Invalid response from server',
+                    text2: 'Please try again later',
+                    position: 'top',
+                    visibilityTime: 3000
+                });
+                setLoading(false);
+                return;
+            }
+
+            console.log("Parsed API response: ", data);
+            setLoading(false);
+
+            if (response.ok) {
                 Toast.show({
                     type: 'success',
                     text1: 'Login successful!',
                     position: 'top',
                     visibilityTime: 3000
                 });
-               await AsyncStorage.setItem('token',data?.token)
+
+                await AsyncStorage.setItem('token', data?.token);
+
+                const decoded = jwtDecode(data?.token);
+                const userRole = decoded?.role;  // Assuming role is inside the decoded token
+                await AsyncStorage.setItem('role', userRole);
                 navigation.navigate('DashBoard', {
-                    screen: 'Homes',  // Specify the initial screen in the tab
-                    params: { token: data?.token },  // Pass the token to the screen
+                    screen: 'Homes',
+                    params: { token: data?.token, role: userRole },  // Pass the role to the tab navigator
                 });
             } else {
-                // Handle login error with appropriate error message
                 Toast.show({
                     type: 'error',
                     text1: 'Login failed',
@@ -69,7 +88,7 @@ const Login = () => {
                 });
             }
         } catch (error) {
-            // Handle network or other errors
+            console.error('Error:', error);
             Toast.show({
                 type: 'error',
                 text1: 'An error occurred',
@@ -77,11 +96,8 @@ const Login = () => {
                 position: 'top',
                 visibilityTime: 3000
             });
-            console.error('Error:', error);
         }
     };
-
-
     return (
         <SafeAreaView style={styles.mainSection}>
             <KeyboardAvoidingView

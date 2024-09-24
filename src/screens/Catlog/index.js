@@ -1,56 +1,96 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, StatusBar, Image } from 'react-native';
 import HomeHeader from '../../component/HomeHeader';
 import { normalizeFont, scaleHeight, scaleWidth } from '../../constant/Dimensions';
 import { useNavigation } from '@react-navigation/native';
 import Imaages from '../../constant/Images';
 import { fontFamilies } from '../../constant/fontsFamilies';
-
-const DATA = [
-    { id: '1', responsible: 'ABCDEF', userId: '123623', status: 'Ativo' },
-    { id: '2', responsible: 'ABCDEF', userId: '123623', status: 'Ativo' },
-    { id: '3', responsible: 'ABCDEF', userId: '123623', status: 'Inativo' },
-    { id: '4', responsible: 'ABCDEF', userId: '123623', status: 'Ativo' },
-    { id: '5', responsible: 'ABCDEF', userId: '123623', status: 'Ativo' },
-];
-const SchoolData = [
-    { id: '1', responsible: 'ABCDEF', userId: '123623', status: 'Ativo' },
-    { id: '2', responsible: 'ABCDEF', userId: '123623', status: 'Ativo' },
-    { id: '3', responsible: 'ABCDEF', userId: '123623', status: 'Inativo' },
-    { id: '4', responsible: 'ABCDEF', userId: '123623', status: 'Ativo' },
-    { id: '5', responsible: 'ABCDEF', userId: '123623', status: 'Ativo' },
-]
+import axios from 'axios';
+import { lightColors } from '@rneui/themed';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Catlog = () => {
     const navigation = useNavigation();
     const [selectedTab, setSelectedTab] = useState('Usuários');
+    const [usersData, setUsersData] = useState([]);
+    const [schoolData, setSchoolData] = useState([]);
+    const [loginDatas, setLoginDatas] = useState();
+    const [stats, setStats] = useState({});
 
-    const openDetailsPage = (user) => {
-        console.log("user", user)
-        if (user === 'user') {
-            navigation.navigate('manageUser');
-        } else {
-            navigation.navigate('manageSchool');
+    useEffect(() => {
+        fetchUsersData();
+        getAllDetails()
+    }, [selectedTab]);
+    const fetchUsersData = async () => {
+        let token = await AsyncStorage.getItem('token');
+        let loginData = await AsyncStorage.getItem('loginData')
+        setLoginDatas(loginData)
+        console.log("Token>>", token)
+        // const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQURNSU4iLCJsb2dpbiI6eyJwcm9wcyI6eyJ2YWx1ZSI6ImFkbWluIn19LCJzdWIiOiI2ZTU0MTBhMy0zYzBkLTRkMTEtOWE4ZS0zMTc1MTIwNTgxNzMiLCJpYXQiOjE3MjY3NjQ1NTAsImV4cCI6MTcyNjg1MDk1MH0.MSxBT8lu8V6n3yy1YgHkgJK0ojEiIl29KoOqr-WKHGY';
+
+        try {
+            const response = await axios.get('https://goes-camera-monitoring-service-webapp-byfhf7enekh7cnbn.eastus-01.azurewebsites.net/users', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'accept': 'application/json',
+                },
+            });
+            console.log("response if>>", response.data)
+            setUsersData(response.data.data)
+        } catch (error) {
+            console.error("Error fetching data", error);
         }
+    };
+    const getAllDetails = async () => {
+        let token = await AsyncStorage.getItem('token');
+        try {
+            const response = await axios.get('https://goes-camera-monitoring-service-webapp-byfhf7enekh7cnbn.eastus-01.azurewebsites.net/stats', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'accept': 'application/json',
+                },
+            });
+            console.log("stats response>", response.data)
+            setStats(response.data)
+        } catch (error) {
+            console.error("Error fetching data", error);
+        }
+    }
 
+    const openDetailsPage = (userType, item) => {
+        if (userType === 'user') {
+            navigation.navigate('manageUser', { data: item });
+        } else {
+            navigation.navigate('manageSchool', { data: item });
+        }
     };
 
     const renderItem = ({ item }) => (
         <View style={styles.row}>
-            <Text style={styles.cellname}>{item.responsible}</Text>
-            <Text style={styles.cellname}>{item.userId}</Text>
+            <Text style={styles.cellname}>{item.name}</Text>
+            <Text style={styles.cellname}>{item.login}</Text>
             <View style={styles.buttons}>
-                <Text style={styles.cell}>{item.status}</Text>
+                <Text style={styles.cell}>{item.enabled ? 'Active' : 'InActive'}</Text>
             </View>
-            <TouchableOpacity style={styles.button} onPress={() => openDetailsPage('user')}>
+            <TouchableOpacity style={styles.button} onPress={() => openDetailsPage('user', item)}>
                 <Text style={styles.viewDetails}>View Details</Text>
             </TouchableOpacity>
         </View>
     );
+
+    const ListHeader = () => (
+        <View style={styles.headerRow}>
+            <Text style={styles.headerCell}>Responsável</Text>
+            <Text style={styles.headerCell}>User(ID)</Text>
+            <Text style={styles.headerCell}>Status</Text>
+            <Text style={styles.headerCell}>Ação</Text>
+        </View>
+    );
+
     const renderSchoolItem = ({ item }) => (
         <View style={styles.row}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Image source={Imaages.schoolIcon} />
+                <Image source={Imaages.schoolIcon} style={styles.imageIcon} />
                 <Text style={styles.cellname}>{item.responsible}</Text>
             </View>
             <View style={styles.buttons}>
@@ -60,19 +100,28 @@ const Catlog = () => {
                 <Text style={styles.viewDetails}>View Details</Text>
             </TouchableOpacity>
         </View>
-    )
+    );
+
     const onPlusButtonClick = () => {
         if (selectedTab === 'Usuários') {
             navigation.navigate('createUser');
         } else {
             navigation.navigate('createSchool');
         }
+    };
+    const onChnageSerach = (text) => {
+        console.log("Item is>>", text)
+        if (selectedTab === 'Usuários') {
+            const filteredData = usersData.filter((item) =>
+                item.name.toLowerCase().includes(text.toLowerCase()) || item.login.toLowerCase().includes(text.toLowerCase())
+            );
+            setUsersData(filteredData);
+        }
     }
-
     return (
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-            <HomeHeader showRecords={true} />
+            <HomeHeader showRecords={true} data={loginDatas} usersList={stats} onChange={onChnageSerach} />
             <View style={styles.tabContainer}>
                 <TouchableOpacity
                     style={[styles.tab, selectedTab === 'Usuários' ? styles.activeTab : styles.inactiveTab]}
@@ -84,21 +133,22 @@ const Catlog = () => {
                     style={[styles.tab, selectedTab === 'Escolas' ? styles.activeTab : styles.inactiveTab]}
                     onPress={() => setSelectedTab('Escolas')}
                 >
-                    <Text style={[selectedTab === 'Usuários' ? styles.activeText : styles.inactiveText]}>Escolas</Text>
+                    <Text style={[selectedTab === 'Escolas' ? styles.activeText : styles.inactiveText]}>Escolas</Text>
                 </TouchableOpacity>
             </View>
             {selectedTab === 'Usuários' ?
                 <FlatList
-                    data={DATA}
+                    data={usersData}
                     renderItem={renderItem}
-                    keyExtractor={item => item.id}
+                    keyExtractor={item => item.id.toString()}
+                    ListHeaderComponent={ListHeader}
                 /> :
                 <FlatList
-                    data={SchoolData}
+                    data={schoolData}
                     renderItem={renderSchoolItem}
-                    keyExtractor={item => item.id}
+                    keyExtractor={item => item.id.toString()}
                 />}
-            <TouchableOpacity onPress={() => onPlusButtonClick()} style={styles.floatingButton}>
+            <TouchableOpacity onPress={onPlusButtonClick} style={styles.floatingButton}>
                 <Text style={styles.buttonText}>+</Text>
             </TouchableOpacity>
         </View>
@@ -114,30 +164,34 @@ const styles = StyleSheet.create({
         marginTop: scaleHeight(20),
     },
     tab: {
+        flex: 1, // Ensure tabs are evenly spaced
         padding: 10,
-        marginLeft: scaleWidth(20),
+        marginHorizontal: scaleWidth(10),
         borderRadius: scaleHeight(50),
+        justifyContent: 'center', // Center tab labels
+        alignItems: 'center',
     },
     activeTab: {
-        backgroundColor: '#2A3E97', // Active tab background
+        backgroundColor: '#2A3E97',
     },
     inactiveTab: {
-        backgroundColor: '#E5EAFC', // Inactive tab background (gray)
+        backgroundColor: '#E5EAFC',
     },
     row: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        borderBottomColor: '#ccc',
-        marginTop: scaleHeight(10),
-        marginHorizontal: scaleWidth(10)
+        paddingVertical: scaleHeight(10),
+        paddingHorizontal: scaleWidth(10),
     },
     cell: {
+        flex: 1,
         fontSize: normalizeFont(10),
-        color: '#00DF80'
-        // flex: 1,
+        color: '#00DF80',
+        textAlign: 'center', // Center text within cell
     },
     button: {
-        padding: 10,
+        paddingHorizontal: scaleWidth(10),
+        paddingVertical: scaleHeight(5),
     },
     floatingButton: {
         position: 'absolute',
@@ -164,23 +218,46 @@ const styles = StyleSheet.create({
         color: 'white',
     },
     buttons: {
+        flex: 3,
         borderColor: '#00DF80',
         borderWidth: 1,
-        padding: 10,
-        width: scaleWidth(80),
+        padding: scaleHeight(10),
         alignItems: 'center',
-        borderRadius: scaleHeight(30)
+        borderRadius: scaleHeight(30),
     },
     cellname: {
+        flex: 4, // Allocate more space to the name
         fontSize: normalizeFont(12),
         fontFamily: fontFamilies.Mulish.regular,
-        color: '#232323'
+        color: '#232323',
+        // width:scaleWidth(20),
+        textAlign: 'center', // Center text within cell
     },
     activeText: {
-        color: 'white'
+        color: 'white',
     },
-    inactiveTab: {
-        color: '#232323'
+    inactiveText: {
+        color: '#232323',
+    },
+    headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: scaleWidth(10),
+        paddingVertical: scaleHeight(10),
+        marginVertical: 10,
+        backgroundColor: lightColors.background, // A light background for headers
+    },
+    headerCell: {
+        flex: 1,
+        fontSize: normalizeFont(12),
+        fontWeight: 'bold',
+        color: '#333',
+        textAlign: 'center', // Ensure header labels are centered
+    },
+    imageIcon: {
+        width: 20,
+        height: 20,
+        marginRight: scaleWidth(10), // Space between icon and text
     }
 });
 

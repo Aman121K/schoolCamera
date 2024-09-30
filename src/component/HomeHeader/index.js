@@ -49,7 +49,7 @@ const HomeHeader = ({ showRecords,data,usersList,schoolList,onChange}) => {
                     </View>
                     <View>
                         <Text style={style.names}>Câmeras</Text>
-                        <Text style={style.records}>{usersList.totalSchools}</Text>
+                        <Text style={style.records}>{usersList.totalClassrooms}</Text>
                     </View>
                 </View>
             }

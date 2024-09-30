@@ -16,6 +16,8 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false)
+    const [passwordImages, setPasswordImages] = useState(Imaages.password)
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Password visibility state
     const onButtonClick = async () => {
         if (!email || !password) {
             Toast.show({
@@ -98,6 +100,10 @@ const Login = () => {
             });
         }
     };
+    const onImageClick = () => {
+        setIsPasswordVisible(!isPasswordVisible)
+        setPasswordImages(Imaages.password)
+    }
     return (
         <SafeAreaView style={styles.mainSection}>
             <KeyboardAvoidingView
@@ -123,8 +129,10 @@ const Login = () => {
                                     placeholder="******"
                                     showImage={true}
                                     value={password}
+                                    // images={passwordImages}
+                                    onImageClick={onImageClick}
                                     onChangeText={setPassword} // Update password state
-                                    secureTextEntry={true} // Hide password input
+                                    secureTextEntry={isPasswordVisible} // Hide password input
                                 />
                             </View>
                         </View>

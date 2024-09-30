@@ -6,10 +6,11 @@ import HomeHeader from '../../../component/HomeHeader';
 import { normalizeFont, scaleHeight, scaleWidth } from '../../../constant/Dimensions';
 import { fontFamilies } from '../../../constant/fontsFamilies';
 import { BottomSheet } from '@rneui/themed';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const Home = () => {
+    const navigation=useNavigation()
     const [selectedVideo, setSelectedVideo] = useState(null); // State for the selected video URL
     const [modalVisible, setModalVisible] = useState(false); // State to control modal visibility
     const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
@@ -76,6 +77,11 @@ const Home = () => {
             </View>
         </TouchableOpacity>
     );
+    const onClickManageCamera=()=>{
+        
+        setIsBottomSheetVisible(false)
+        navigation.navigate('AllCamera')
+    }
 
     return (
         <SafeAreaView style={styles.mainSection}>
@@ -118,7 +124,7 @@ const Home = () => {
                         </View>
                         <Text style={styles.seunText}>Manage users, schools, and cameras by adding, updating, and configuring them to ensure smooth system functionality.</Text>
                         <View>
-                            <TouchableOpacity onPress={() => setIsBottomSheetVisible(false)} style={styles.buttonSection}>
+                            <TouchableOpacity onPress={() => onClickManageCamera()} style={styles.buttonSection}>
                                 <Text style={styles.buttonText}>Manage Cameras</Text>
                                 <Image source={Imaages.rightArrow} />
                             </TouchableOpacity>
@@ -138,10 +144,11 @@ const Home = () => {
                 onRequestClose={closeModal}
             >
                 <Pressable style={styles.modalBackground} onPress={closeModal}>
-                    <View style={styles.modalContent}>
-                        <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-                            <Text>X</Text>
+                <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+                            <Text> vvaX</Text>
                         </TouchableOpacity>
+                    <View style={styles.modalContent}>
+                        
                         {selectedVideo && (
                             <Video
                                 source={{ uri: selectedVideo }}   // Video URL from state

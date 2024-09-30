@@ -1,11 +1,18 @@
 import React from "react";
 import { Image, Platform, StyleSheet, TextInput, View } from 'react-native';
 import Imaages from "../Images";
+import { scaleWidth } from "../Dimensions";
+import { TouchableOpacity } from "react-native";
 const Search = ({ searchText, onChange }) => {
     return (
         <View style={styles.mainSection}>
-            <Image style={{alignSelf:'center',left:5}} source={Imaages.Search} />
+            <TouchableOpacity style={{ alignSelf: 'center', left: 5 }}>
+                <Image style={{ alignSelf: 'center', left: 5 }} source={Imaages.Search} />
+            </TouchableOpacity>
             <TextInput style={styles.inputText} placeholder="Pesquisar" onChangeText={onChange} />
+            <TouchableOpacity style={{ alignSelf: 'center', left: 5 }}>
+                <Image  source={Imaages.filter} />
+            </TouchableOpacity>
         </View>
     )
 }
@@ -21,6 +28,7 @@ const styles = StyleSheet.create({
     },
     inputText: {
         marginHorizontal: 20,
-    
+        width: scaleWidth(220)
+
     }
 })

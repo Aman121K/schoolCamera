@@ -10,6 +10,14 @@ import EditUsers from "../screens/Catlog/EditUser";
 import EditSchools from "../screens/Catlog/EditSchool";
 import CreateSchools from "../screens/Catlog/CreateUsers";
 import CreateUsers from "../screens/Catlog/CreateUsers";
+import AllCamera from "../screens/home/ManageCamera/AllCamera";
+import EditSingleCamera from "../screens/home/ManageCamera/EditSingleCamera";
+import ViewSingleCamera from "../screens/home/ManageCamera/ViewSingleCamera";
+import CreateCamera from "../screens/home/ManageCamera/CreateCamera";
+import AddSchool from "../screens/Catlog/Schools/AddSchools";
+import EditSchoolDetails from "../screens/Catlog/Schools/EditSchoolDetails";
+import UpdateSchoolLogo from "../screens/Catlog/Schools/UpdateSchoolLogo";
+import ViewSchools from "../screens/Catlog/Schools/ViewSchools";
 const StackNavigation = () => {
     const Stack = createNativeStackNavigator();
     return (
@@ -24,6 +32,14 @@ const StackNavigation = () => {
             <Stack.Screen name="editSchool" component={EditSchools} options={{ headerShown: false }} />
             <Stack.Screen name="createUser" component={CreateUsers} options={{ headerShown: false }} />
             <Stack.Screen name="createSchool" component={CreateSchools} options={{ headerShown: false }} />
+            <Stack.Screen name="AllCamera" component={AllCamera} options={{ headerShown: false }} />
+            <Stack.Screen name="EditSingleCamera" component={EditSingleCamera} options={{ headerShown: false }} />
+            <Stack.Screen name="ViewSingleCamera" component={ViewSingleCamera} options={{ headerShown: false }} />
+            <Stack.Screen name="CreateCamera" component={CreateCamera} options={{ headerShown: false }} />
+            <Stack.Screen name="AddSchool" component={AddSchool} options={{ headerShown: false }} />
+            <Stack.Screen name="EditSchoolDetails" component={EditSchoolDetails} options={{ headerShown: false }} />
+            <Stack.Screen name="UpdateSchoolLogo" component={UpdateSchoolLogo} options={{ headerShown: false }} />
+            <Stack.Screen name="ViewSchools" component={ViewSchools} options={{ headerShown: false }} />
         </Stack.Navigator>
     )
 }

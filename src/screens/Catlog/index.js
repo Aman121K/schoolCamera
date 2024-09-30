@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, StatusBar, Image } from 'react-native';
 import HomeHeader from '../../component/HomeHeader';
 import { normalizeFont, scaleHeight, scaleWidth } from '../../constant/Dimensions';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Imaages from '../../constant/Images';
 import { fontFamilies } from '../../constant/fontsFamilies';
 import axios from 'axios';
 import { lightColors } from '@rneui/themed';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCallback } from 'react';
 
 const Catlog = () => {
     const navigation = useNavigation();
@@ -17,16 +18,11 @@ const Catlog = () => {
     const [loginDatas, setLoginDatas] = useState();
     const [stats, setStats] = useState({});
 
-    useEffect(() => {
-        fetchUsersData();
-        getAllDetails()
-    }, [selectedTab]);
     const fetchUsersData = async () => {
         let token = await AsyncStorage.getItem('token');
-        let loginData = await AsyncStorage.getItem('loginData')
-        setLoginDatas(loginData)
-        console.log("Token>>", token)
-        // const token = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQURNSU4iLCJsb2dpbiI6eyJwcm9wcyI6eyJ2YWx1ZSI6ImFkbWluIn19LCJzdWIiOiI2ZTU0MTBhMy0zYzBkLTRkMTEtOWE4ZS0zMTc1MTIwNTgxNzMiLCJpYXQiOjE3MjY3NjQ1NTAsImV4cCI6MTcyNjg1MDk1MH0.MSxBT8lu8V6n3yy1YgHkgJK0ojEiIl29KoOqr-WKHGY';
+        let loginData = await AsyncStorage.getItem('loginData');
+        setLoginDatas(loginData);
+        console.log("Token>>", token);
 
         try {
             const response = await axios.get('https://goes-camera-monitoring-service-webapp-byfhf7enekh7cnbn.eastus-01.azurewebsites.net/users', {
@@ -35,12 +31,13 @@ const Catlog = () => {
                     'accept': 'application/json',
                 },
             });
-            console.log("response if>>", response.data)
-            setUsersData(response.data.data)
+            console.log("response if>>", response.data);
+            setUsersData(response.data.data);
         } catch (error) {
             console.error("Error fetching data", error);
         }
     };
+
     const getAllDetails = async () => {
         let token = await AsyncStorage.getItem('token');
         try {
@@ -50,12 +47,19 @@ const Catlog = () => {
                     'accept': 'application/json',
                 },
             });
-            console.log("stats response>", response.data)
-            setStats(response.data)
+            console.log("stats response>", response.data);
+            setStats(response.data);
         } catch (error) {
             console.error("Error fetching data", error);
         }
-    }
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchUsersData();
+            getAllDetails();
+        }, [selectedTab])
+    );
 
     const openDetailsPage = (userType, item) => {
         if (userType === 'user') {
@@ -68,7 +72,7 @@ const Catlog = () => {
     const renderItem = ({ item }) => (
         <View style={styles.row}>
             <Text style={styles.cellname}>{item.name}</Text>
-            <Text style={styles.cellname}>{item.login}</Text>
+            <Text style={styles.cellname}>{item.login.slice(-10)}</Text>
             <View style={styles.buttons}>
                 <Text style={styles.cell}>{item.enabled ? 'Active' : 'InActive'}</Text>
             </View>
@@ -106,22 +110,24 @@ const Catlog = () => {
         if (selectedTab === 'Usuários') {
             navigation.navigate('createUser');
         } else {
-            navigation.navigate('createSchool');
+            navigation.navigate('AddSchool');
         }
     };
-    const onChnageSerach = (text) => {
-        console.log("Item is>>", text)
+
+    const onChangeSearch = (text) => {
+        console.log("Item is>>", text);
         if (selectedTab === 'Usuários') {
             const filteredData = usersData.filter((item) =>
                 item.name.toLowerCase().includes(text.toLowerCase()) || item.login.toLowerCase().includes(text.toLowerCase())
             );
             setUsersData(filteredData);
         }
-    }
+    };
+
     return (
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-            <HomeHeader showRecords={true} data={loginDatas} usersList={stats} onChange={onChnageSerach} />
+            <HomeHeader showRecords={true} data={loginDatas} usersList={stats} onChange={onChangeSearch} />
             <View style={styles.tabContainer}>
                 <TouchableOpacity
                     style={[styles.tab, selectedTab === 'Usuários' ? styles.activeTab : styles.inactiveTab]}
@@ -136,18 +142,21 @@ const Catlog = () => {
                     <Text style={[selectedTab === 'Escolas' ? styles.activeText : styles.inactiveText]}>Escolas</Text>
                 </TouchableOpacity>
             </View>
-            {selectedTab === 'Usuários' ?
-                <FlatList
-                    data={usersData}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id.toString()}
-                    ListHeaderComponent={ListHeader}
-                /> :
-                <FlatList
-                    data={schoolData}
-                    renderItem={renderSchoolItem}
-                    keyExtractor={item => item.id.toString()}
-                />}
+            <View style={{ marginBottom: scaleHeight(50) }}>
+                {selectedTab === 'Usuários' ?
+
+                    <FlatList
+                        data={usersData}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.id.toString()}
+                        ListHeaderComponent={ListHeader}
+                    /> :
+                    <FlatList
+                        data={schoolData}
+                        renderItem={renderSchoolItem}
+                        keyExtractor={item => item.id.toString()}
+                    />}
+            </View>
             <TouchableOpacity onPress={onPlusButtonClick} style={styles.floatingButton}>
                 <Text style={styles.buttonText}>+</Text>
             </TouchableOpacity>
@@ -164,11 +173,11 @@ const styles = StyleSheet.create({
         marginTop: scaleHeight(20),
     },
     tab: {
-        flex: 1, // Ensure tabs are evenly spaced
+        flex: 1,
         padding: 10,
         marginHorizontal: scaleWidth(10),
         borderRadius: scaleHeight(50),
-        justifyContent: 'center', // Center tab labels
+        justifyContent: 'center',
         alignItems: 'center',
     },
     activeTab: {
@@ -187,7 +196,7 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: normalizeFont(10),
         color: '#00DF80',
-        textAlign: 'center', // Center text within cell
+        textAlign: 'center',
     },
     button: {
         paddingHorizontal: scaleWidth(10),
@@ -213,10 +222,6 @@ const styles = StyleSheet.create({
         textDecorationLine: 'underline',
         fontSize: normalizeFont(12),
     },
-    titleName: {
-        fontSize: normalizeFont(12),
-        color: 'white',
-    },
     buttons: {
         flex: 3,
         borderColor: '#00DF80',
@@ -226,12 +231,11 @@ const styles = StyleSheet.create({
         borderRadius: scaleHeight(30),
     },
     cellname: {
-        flex: 4, // Allocate more space to the name
+        flex: 4,
         fontSize: normalizeFont(12),
         fontFamily: fontFamilies.Mulish.regular,
         color: '#232323',
-        // width:scaleWidth(20),
-        textAlign: 'center', // Center text within cell
+        textAlign: 'center',
     },
     activeText: {
         color: 'white',
@@ -245,19 +249,19 @@ const styles = StyleSheet.create({
         paddingHorizontal: scaleWidth(10),
         paddingVertical: scaleHeight(10),
         marginVertical: 10,
-        backgroundColor: lightColors.background, // A light background for headers
+        backgroundColor: lightColors.background,
     },
     headerCell: {
         flex: 1,
         fontSize: normalizeFont(12),
         fontWeight: 'bold',
         color: '#333',
-        textAlign: 'center', // Ensure header labels are centered
+        textAlign: 'center',
     },
     imageIcon: {
         width: 20,
         height: 20,
-        marginRight: scaleWidth(10), // Space between icon and text
+        marginRight: scaleWidth(10),
     }
 });
 

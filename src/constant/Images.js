@@ -25,7 +25,11 @@ const Imaages = {
     deleteIcons:require('../assets/img/delete/delete.png'),
     dropIcon:require('../assets/img/dropIcon/dropIcon.png'),
     threeDots:require('../assets/img/threeDots/threeDots.png'),
-    CameraImages:require('../assets/img/cameras/cameras.png')
+    CameraImages:require('../assets/img/cameras/cameras.png'),
+    Plus:require('../assets/img/plus/plus.png'),
+    filter:require('../assets/img/filter/filter.png'),
+    links:require('../assets/img/links/links.png'),
+    userImages:require('../assets/img/userImage/userImage.png')
 
 }
 export default Imaages

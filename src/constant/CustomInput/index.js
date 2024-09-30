@@ -1,9 +1,9 @@
 // CustomTextInput.js
 import React from 'react';
-import { TextInput, StyleSheet, Image, View, TouchableOpacity, Platform } from 'react-native';
+import { TextInput, StyleSheet, Image, View, TouchableOpacity, Platform,} from 'react-native';
 import Imaages from '../Images';
 
-const CustomTextInput = ({ placeholder, value, onChangeText, style, showImage, secureTextEntry }) => {
+const CustomTextInput = ({ placeholder, value, onChangeText, style, showImage, secureTextEntry, onImageClick }) => {
   return (
     <View style={styles.input}>
       <TextInput
@@ -14,7 +14,7 @@ const CustomTextInput = ({ placeholder, value, onChangeText, style, showImage, s
         secureTextEntry={secureTextEntry}
       />
       {showImage &&
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onImageClick}>
           <Image style={{ alignSelf: 'flex-end', top: 20 }} source={Imaages.password} />
         </TouchableOpacity>
       }

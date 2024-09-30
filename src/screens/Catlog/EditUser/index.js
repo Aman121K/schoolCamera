@@ -8,18 +8,20 @@ import Toast from 'react-native-toast-message';
 import { BottomSheet, normalize } from '@rneui/themed';
 import { fontFamilies } from '../../../constant/fontsFamilies';
 import { useRoute } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Ensure you're importing AsyncStorage
 
 const EditUsers = () => {
   const route = useRoute();
-  console.log("data", route)
   const { data } = route.params || {}; // Destructure token from route params
-  console.log("Received data on edit page", data);
+  console.log("finla role>>", data)
   const [userData, setUserData] = useState({
     status: data?.enabled ? "Active" : "Inactive",
     userId: data?.id || "",
     parentName: data?.name || "",
-    password: "*****", // Placeholder, as password wasn't part of the data
+    password: "*****", // Placeholder, as password wasn't part of the data,
+    role: data?.role
   });
+
   const [isDeleteButtonClick, setIsDeleteButtonClick] = useState(false);
   const [editingField, setEditingField] = useState(null);
   const [updateLoading, setUpdateLoading] = useState(false);
@@ -27,7 +29,7 @@ const EditUsers = () => {
   const toggleStatus = () => {
     setUserData((prevData) => ({
       ...prevData,
-      status: prevData.status === "Active" ? "InActive" : "Active",
+      status: prevData.status === "Active" ? "Inactive" : "Active",
     }));
   };
 
@@ -46,25 +48,35 @@ const EditUsers = () => {
     setUpdateLoading(true);
     try {
       let token = await AsyncStorage.getItem('token');
+      if (!token) {
+        throw new Error('Token not found');
+      }
+
       const updatedData = {
         name: userData.parentName, // Use edited name
         login: userData.userId, // Assuming userId corresponds to login
-        role: 'ADMIN', // Assuming role is hardcoded or managed elsewhere
-        enabled: userData.status === "Active", // Convert status to boolean
-        // password: userData.password, // Placeholder, as password isn't being edited directly
+        role: userData.role, // Assuming role is hardcoded or managed elsewhere
+        enabled: userData.status == "Active" ? true : false, // Convert status to boolean
       };
-      console.log("updatedData>>",updatedData)
-  
-      const response = await fetch(`https://goes-camera-monitoring-service-webapp-byfhf7enekh7cnbn.eastus-01.azurewebsites.net/users/${userData.userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'accept': '*/*',
-        },
-        body: JSON.stringify(updatedData),
-      });
-      console.log("response>>",response)
+
+      console.log("body>>", updatedData, `Bearer ${token}`)
+
+      const response = await fetch(
+        `https://goes-camera-monitoring-service-webapp-byfhf7enekh7cnbn.eastus-01.azurewebsites.net/users/${userData.userId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`, // Make sure token is added here
+          },
+          body: JSON.stringify(updatedData), // Convert the body to JSON
+        }
+      );
+      console.log("Response>>", response)
+
+      if (!response.ok) {
+        throw new Error('Failed to update user');
+      }
 
       Toast.show({
         type: 'success',
@@ -75,6 +87,7 @@ const EditUsers = () => {
 
       setEditingField(null);
     } catch (error) {
+      console.error('Update error:', error);
       Toast.show({
         type: 'error',
         text1: 'Failed to update user!',
@@ -85,17 +98,20 @@ const EditUsers = () => {
       setUpdateLoading(false);
     }
   };
+
   const onEditIconClick = () => {
-    setIsDeleteButtonClick(true)
-  }
-  const accountdelet = () => {
+    setIsDeleteButtonClick(true);
+  };
+
+  const accountDelete = () => {
+    setIsDeleteButtonClick(false);
     Toast.show({
       type: 'success',
       text1: 'Your Account deletion request is submitted',
       position: 'top',
       visibilityTime: 3000,
     });
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -148,10 +164,10 @@ const EditUsers = () => {
           <TouchableOpacity onPress={() => setIsDeleteButtonClick(false)}>
             <Image style={{ alignSelf: 'flex-end', marginRight: scaleWidth(30), margin: 10 }} source={Imaages.crossIcons} />
           </TouchableOpacity>
-          <Text style={styles.lebel}>Are You Sure You Want to Delete This User?</Text>
-          <Text style={styles.sublevel}>Deleting this User will permanently remove their data from the system. This action cannot be undone. Do you wish to proceed?</Text>
+          <Text style={styles.label}>Are You Sure You Want to Delete This User?</Text>
+          <Text style={styles.subLabel}>Deleting this User will permanently remove their data from the system. This action cannot be undone. Do you wish to proceed?</Text>
           <View>
-            <TouchableOpacity onPress={accountdelet} style={styles.button}>
+            <TouchableOpacity onPress={accountDelete} style={styles.button}>
               <Text style={styles.actionText}>Yes</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setIsDeleteButtonClick(false)} style={styles.button}>
@@ -197,13 +213,13 @@ const styles = StyleSheet.create({
   bottomSheetBackground: {
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
-  lebel: {
+  label: {
     marginHorizontal: scaleWidth(30),
     fontSize: normalize(15),
     fontFamily: fontFamilies.Mulish.bold,
     color: '#18181B',
   },
-  sublevel: {
+  subLabel: {
     fontSize: normalize(12),
     fontFamily: fontFamilies.Mulish.semiBold,
     color: '#52525B',
@@ -225,68 +241,34 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    alignItems: 'center', // Centers elements vertically within the row
+    margin: 10,
   },
   label: {
-    fontSize: normalizeFont(14),
-    fontFamily: fontFamilies.Mulish.regular,
-    color: '#000000',
-  },
-  value: {
-    fontSize: 16,
-    color: '#000000',
-    flex: 1,
-  },
-  activeStatus: {
-    color: 'green',
-  },
-  detailSection: {
-    backgroundColor: 'white',
-    padding: scaleHeight(10),
-    marginTop: scaleHeight(30),
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-    padding: scaleWidth(15),
-  },
-  detailSection: {
-    backgroundColor: 'white',
-    padding: scaleHeight(10),
-    marginTop: scaleHeight(30),
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  label: {
-    fontSize: 16,
-    color: '#333',
-    flex: 0.4,
+    flex: 1, // Takes 1/3 of available space
+    fontSize: normalize(15),
+    fontFamily: fontFamilies.Mulish.bold,
+    color: '#18181B',
   },
   inputContainer: {
-    flex: 0.4,
+    flex: 2, // Takes 2/3 of available space
     justifyContent: 'center',
-  },
-  value: {
-    fontSize: 16,
-    color: '#333',
+    marginHorizontal: scaleWidth(10), // Adds horizontal space
   },
   input: {
     fontSize: 16,
     color: '#000',
     borderBottomWidth: 1,
     borderColor: '#ccc',
+    textAlign: 'left', // Ensures text aligns left
+  },
+  value: {
+    fontSize: 16,
+    color: '#000',
+    textAlign: 'left',
+  },
+  switch: {
+    flex: 0.5, // Smaller size for the switch
   },
   editIcon: {
     width: 20,
